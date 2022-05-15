@@ -29,28 +29,16 @@ inline string max(const vector<string>& vec) {
     return *max_element(vec.begin(), vec.end());
 }
 
-inline int max(int vec[], int size) {
-    int res = vec[0];
-    for (int i = 1; i < size; i++) {
-        if (vec[i] > res) res = vec[i];
-    }
-    return res;
+inline int max(const int *parray, int size) {
+    return *max_element(parray, parray+size);
 }
 
-inline float max(float vec[], int size) {
-    float res = vec[0];
-    for (int i = 1; i < size; i++) {
-        if (vec[i] > res) res = vec[i];
-    }
-    return res;
+inline float max(const float *parray, int size) {
+    return *max_element(parray, parray+size);
 }
 
-inline string max(string vec[], int size) {
-    string res = vec[0];
-    for (int i = 1; i < size; i++) {
-        if (vec[i] > res) res = vec[i];
-    }
-    return res;
+inline string max(const string *parray, int size) {
+    return *max_element(parray, parray+size);
 }
 
 int main() {
