@@ -1,11 +1,16 @@
 #include<iostream>
 #include<fstream>
 #include<iterator>
-#include<map>
 #include<vector>
 #include<string>
 #include<algorithm>
 using namespace std;
+
+class even_elem {
+    public:
+        bool operator() (int elem) 
+            {return elem%2 ? true : false;}
+};
 
 int main() {
     ofstream odd_num_file("odd_num_file.txt");
@@ -18,19 +23,13 @@ int main() {
     cout << "Please enter a series of integers.\n";
     istream_iterator<int> is(cin);
     istream_iterator<int> eof;
-    vector<int> nums, odd_nums, even_nums;
+    vector<int> nums;
     copy(is, eof, back_inserter(nums));
-    for (int i = 0; i < nums.size(); i++) {
-        if (nums[i] % 2) {
-            odd_nums.push_back(nums[i]);
-        } else {
-            even_nums.push_back(nums[i]);
-        }
-    }
+    vector<int>::iterator division = partition(nums.begin(), nums.end(), even_elem());
 
     ostream_iterator<int> odd_os(odd_num_file, " ");
     ostream_iterator<int> even_os(even_num_file, "\n");
-    copy(odd_nums.begin(), odd_nums.end(), odd_os);
-    copy(even_nums.begin(), even_nums.end(), even_os);
+    copy(nums.begin(), division, odd_os);
+    copy(division, nums.end(), even_os);
     return 0;
 }
