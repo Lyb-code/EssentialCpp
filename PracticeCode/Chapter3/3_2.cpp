@@ -1,7 +1,6 @@
 #include<iostream>
 #include<fstream>
-#include<map>
-#include<set>
+#include<iterator>
 #include<vector>
 #include<string>
 #include<algorithm>
@@ -9,10 +8,21 @@ using namespace std;
 
 class cmp {
     public:
-        bool operator() (string str1, string str2) {
+        bool operator() (const string& str1, const string& str2) {
             return str1.length() < str2.length();
         }
 };
+
+template <typename elemType>
+void display_vector(const vector<elemType> &vec, ostream &os = cout, int len = 8) {
+    typename vector<elemType>::const_iterator iter = vec.begin(), end_it = vec.end();
+
+    int elem_cnt = 1;
+    while (iter != end_it) {
+        os << *iter++ << (!(elem_cnt++ % len) ? '\n' : ' ');
+    }
+    os << endl;
+}
 
 int main() {
     ifstream in_file("input_file1.txt");
@@ -22,25 +32,14 @@ int main() {
     }
     
     string word;
-    string exclude_words[6] = {"a", "an", "or", "the", "and", "but"};
-    map<string, int> wordCnt;
-    map<string, int>::iterator it;
-    set<string> word_exclusion(exclude_words, exclude_words+6);
-    while (in_file >> word) {
-        if (!word_exclusion.count(word)) {
-            wordCnt[word]++;
-        }
-    }
-    
     vector<string> v;
-    for (it = wordCnt.begin(); it != wordCnt.end(); ++it)
-        v.push_back(it->first);
+    while (in_file >> word) {
+        v.push_back(word);
+    }
     
     sort(v.begin(), v.end(), cmp());
     cout << "The contents of the sorted vector:.\n";
-    for (int i = 0; i < v.size(); i++) {
-        cout << v[i] << ' ';
-    }
+    display_vector(v);
 
     return 0;
 }
