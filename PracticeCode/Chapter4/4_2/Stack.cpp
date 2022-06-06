@@ -1,4 +1,5 @@
 #include "Stack.h"
+#include "algorithm"
 
 bool Stack::push(const string& elem) {
     if (full()) return false;
@@ -19,30 +20,11 @@ bool Stack::peek(string& elem) {
     return true;
 }
 
-bool Stack::find(const string& elem) {
-    Stack copy_stack;
-    bool found = false;
-    string exist_elem;
-    while (this->pop(exist_elem) && !found) {
-        if (exist_elem == elem) found = true;
-        copy_stack.push(exist_elem);
-    }
-    while (copy_stack.pop(exist_elem)) {
-        this->push(exist_elem);
-    }
-    return found;
+bool Stack::find(const string& elem) const {
+    vector<string>::const_iterator end_it = _stack.end();
+    return ::find(_stack.begin(), end_it, elem) != end_it;
 }
 
-int Stack::count(const string & elem) {
-    Stack copy_stack;
-    int cnt = 0;
-    string exist_elem;
-    while (this->pop(exist_elem)) {
-        if (exist_elem == elem) cnt++;
-        copy_stack.push(exist_elem);
-    }
-    while (copy_stack.pop(exist_elem)) {
-        this->push(exist_elem);
-    }
-    return cnt;
+int Stack::count(const string & elem) const {
+    return ::count(_stack.begin(), _stack.end(), elem);
 }

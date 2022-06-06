@@ -11,8 +11,8 @@ public:
     bool peek(string &elem);
     bool empty();
     bool full();
-    bool find(const string&);
-    int count(const string &);
+    bool find(const string&) const;
+    int count(const string &) const;
     int size() { return _stack.size(); }
 
 
