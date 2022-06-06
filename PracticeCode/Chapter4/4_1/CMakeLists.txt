@@ -1,7 +1,7 @@
 # cmake 的版本要求
 cmake_minimum_required(VERSION 3.14)
 # 项目名称
-project(Chapter4)
+project(4_1)
 # 设置debug模式
 set(CMAKE_BUILD_TYPE "Debug")
 # 设置源文件根目录，并设置别名为DIR_ROOT
