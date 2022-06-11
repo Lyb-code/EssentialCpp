@@ -1,0 +1,37 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "g++.exe - 生成和调试活动文件",
+            // type 告诉vscode编译器的类型，我用的MinGW64也就是g++，这里是cppdbg
+            // 这个是规定的，不是随便写，比如msvc编译器就是cppvsdbg
+            "type": "cppdbg",
+            "request": "launch",
+            // program 是可执行程序位置，这里可以根据自己的tasks.json生成
+            // 程序的位置自定义修改，等会参照后面的tasks.json内容
+            "program": "${workspaceFolder}\\build\\${workspaceRootFolderName}.exe",
+            "args": [], 
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            // 调试器的路径
+            "miDebuggerPath": "C:\\TDM-GCC-64\\bin\\gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // preLaunchTask 表示在 执行调试前 要完成的任务
+            // 比如这里 要完成 makeRun 这个tasks任务（重新生成程序）
+            // 这里的 makeRun 是 tasks.json 中 lable 标记的任务名称
+            "preLaunchTask": "makeRun",
+        }
+    ]
+}
