@@ -53,6 +53,25 @@ C++没有提供任何语法让我们得以从 heap 分配数组的同时为其�
 
 inline 函数的定义，常常被放在头文件中。由于**编译器必须在它被调用的时候加以展开**，所以这个时候其定义必须是有效的。
 
+**为什么inline函数的定义要放在头文件中**？
+
+inline函数的定义可以放在.cpp中，但此时只有本cpp文件可以使用它。如果要被多个源文件使用，就必须放在 .h 中，如果不想放在 .h 中，就必须每个 cpp 文件拷贝一份。其实，即使放在 .h 中，也是每个 cpp 文件拷贝一份的，只不过是编译器替你完成这种拷贝罢了。
+
+- [inline函数必须在头文件中定义吗？](https://blog.csdn.net/tonywearme/article/details/7097910?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-2-7097910-blog-77998418.pc_relevant_paycolumn_v3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-2-7097910-blog-77998418.pc_relevant_paycolumn_v3&utm_relevant_index=4)
+
+  - **inline** 函数并不是必须定义在头文件中，但是一个好的工程习惯是将其定义在头文件中。
+  - **（核心）inline** 函数在链接的时候仅仅在单个 **cpp** 文件中“可见”，并不是全局“可见”，其实是因为 **inline** 函数没有被编译成汇编码，无法用于链接。
+  - 普通函数是整个工程可见的，可以跨文件链接，而 **inline** 函数仅仅当前文件可见，不可以跨文件链接。
+  - 为什么类中定义的函数会被[编译器]自动判定为 **inline** 函数？看链接。
+  - **原理（面试时回答）**：因为 **inline 函数在编译的时候就被插入到调用处，编译器不会单独为一个 inline 函数生成汇编代码，而是在调用的地方直接生成汇编代码插入到调用处**，这个是属于编译阶段的事情而不是链接阶段的事情，所以在编译的代码生成阶段就需要拿到 inline 函数的定义。**如果编译器在编译的代码生成阶段没有拿到 inline 函数的定义，则将对其的调用推迟到链接时**，但是由于**对于 inline 函数的定义处，编译器并未生成汇编代码**，所以会链接失败，报“对 xxx 未定义的引用”错误。
+
+- c++ primer第三版
+
+  inline函数（即内联函数）对编译器而言必须是可见的，以便能够在调用点展开该函数，与非inline函数不同的是，inline函数**必须在调用该函数的每个文件（例如别的cpp文件）**中**定义**。当然，对于同一程序的不同文件，如果inline函数出现的话，其定义必须相同。
+
+  正因为如此，建议把inline函数的定义放到头文件中，在每个调用该inline函数的文件中包含该头文件。这种方法保证了每个inline函数只有一个定义，且程序员无需复制代码，并且不可能在程序的生命周期中引起无意的不匹配的事情。
+
+
 **2.6 提供重载函数**
 
 为什么返回类型不足以将函数重载呢?因为返回类型无法保证提供给我们一个足以区分不同重载函数的语境。例如
@@ -173,7 +192,15 @@ private member 只能在 member function或是 class friend内被访问。
 
 所有member function 都必须在 class 主体内进行声明。**至于是否要同时进行定义，可自由决定**。**如果要在 class 主体内定义，这个 member function 会自动地被视为 inline 函数**。
 
-class定义及其 inline member function 通常都会被放在与class同名的头文件中。**non-inline member function 应该在程序代码文件中定义**，该文件通常和 class 同名，其后接着扩展名.c、.cc、.cpp或.cxx（x代表横放的+）。
+class定义及其 inline member function 通常都会被放在与class同名的头文件中。**non-inline member function 应该在程序代码文件中定义**，该文件通常和 class 同名，其后接着扩展名.c、.cc、.cpp或.cxx（x代表横放的+）。**说明如下**：
+
+- non-inline的成员函数如果在头文件中定义，那么当有多个源文件(cpp等)包含该头文件时，会在链接时报重定义error。违背了"一次定义"原则。
+
+- inline函数**可以并且常常**在头文件中定义。详见2.5关于inline函数放在头文件的说明。
+
+  
+
+  
 
 **4.2 构造函数与析构函数**
 
@@ -329,6 +356,68 @@ dynamic_cast 也是一个 RTTI 运算符，它会进行运行时检验操作，�
 
 
 
+## 第6章 以template进行编程
+
+**6.3 Template 类型参数的处理**
+
+我建议，**将所有的 template 类型参数视为"class类型"来处理**。这意味着我们会把它声明为一个const reference，而非以 by value 方式传递。
+
+在 constructor 定义中。我选择在 member initialization list 内为每个类型参数进行初始化操作，而不选择在 constructor 函数体内进行。因为它可能是 class类型，这样可以保证效率最佳。
+
+详见书本，本节是从效率的角度考虑问题的，值得再看。不关心效率==不谙C++编程技巧。
+
+**6.6 常量表达式与默认参数值**
+
+Template 参数并不是非得某种类型（type）不可。我们也可以用常量表达式（constant expression）作为 template 参数。
+
+类模板中定义了常量，那么在类里面就不用定义同名的data member了。
+
+全局作用域（global scope）内的函数及对象，其地址也是一种常量表达式，因此也可以被拿来表达这一形式的参数。
+
+**6.7 以Template参数作为一种设计策略**
+
+虽然这第二个类提供的是和 LessThan相同的语义，我们却得为它另外取个名称，因为 **class template无法基于参数列表的不同而重载**。就让我把它命名为LessThanPred吧——-因为lessthan 运算符被我指定为默认参数值。
+
+这种独特设计虽然比较高级，但我认为值得提这么一下，以免你可能认为class template的类型参数仅能用以传递元素类型——像二叉树或标准库的 vector、list等容器那样。
+
+
+
+## 第7章 异常处理
+
+所谓异常（exception）是某种对象。
+
+重新抛出异常时，只需写下关键字throw即可。它只能出现于catch子句中。
+
+C++规定，每个异常都应该被处理，因此，如果在main（内还是找不到合适的处理程序、便调用标准库提供的terminate（）——其默认行为是中断整个程序的执行。
+
+但由于check_Integrity（）是以"抛出异常"的方式来表现错误，所以不需要进行这些防范操作。我们可以保证，只有在无任何异常被抛出的情况下，dereference 运算符才会执行 return 语句。只要发生任何异常，函数便会在"return 语句被执行前"中断。
+
+当函数的 try块发生某个异常，但并没有相应的catch 子句将它捕获，此函数便会被中断，由异常处理机制接管、**沿着"函数调用链"一路回溯**，搜寻符合条件的 catch 子句。
+
+ 初学者常犯的错误是，将C++异常和 segmentation fault 或是 bus error 这类硬件异常混淆在一起。面对任何一个被抛出的C++异常，你都可以在程序某处找到一个相应的 throw表达式。
+
+**局部资源管理**：在异常处理机制终结某个函数之前，C++保证，函数中的所有局部对象的 destructor 都会被调用。介绍了resource acquistion is initilization的概念。
+
+```cpp
+include <memory>
+void f()
+{
+    //p和m1都是局部对象
+    auto_ptr<int> p{ new int );
+    MutexLock ml(m );
+    process(p );
+    // p和ml的 destructor会在此处被悄悄调用…
+}
+```
+
+auto_ptr 是标准库提供的 class template，它会自动删除通过 new表达式分配的对象，例如先前例子中的p。
+
+
+
+**附录B 泛型算法参考手册可以好好看看**，给出了作者认为常用的算法。
+
+
+
 ## Homework Note
 
 - C风格的字符串，必须声明为字符数组，并必须制定长度。声明为字符指针是不行滴。—练习1.5
@@ -363,3 +452,23 @@ dynamic_cast 也是一个 RTTI 运算符，它会进行运行时检验操作，�
   ```
 
   为了调用这两个泛型算法，我必须**使用global scope（全局作用域）运算符**。如果不这么做会怎样?啊，在 find（）之中调用未以 global scope 运算符限定的 find（），会递归调用到自己!
+
+- 以 default constructor的形式来指定初值--练习6.2
+
+  ```cpp
+   Matrix(int rows, int columns)
+       : _rows(rows), _cols(columns)
+       {
+           int size = _rows * _cols;
+           _matrix = new elemType[size];
+           for(int i = 0; i < size; i++)
+               _matrix[i] = elemType();
+           /*因为elemType 所代表的实际类
+  型，可能变化万千，而程序语言只允许我们以 default constructor的形式来指定初值∶*/
+       }
+  ```
+
+- 模板类的声明和定义应放在头一个头文件中--练习6.2
+
+- 无论何时，如果在处理指针，必须随时注意指针是否的确指向实际存在的对象--7.1
+
