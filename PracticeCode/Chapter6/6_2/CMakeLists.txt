@@ -9,4 +9,4 @@ aux_source_directory(. DIR_ROOT)
 # 设置CPP版本标准
 set(CMAKE_CXX_STANDARD 11)
 # 项目包含哪些文件
-add_executable(${PROJECT_NAME} Matrix.cpp main.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
